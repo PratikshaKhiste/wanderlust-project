@@ -36,10 +36,20 @@ async function main() {
     await mongoose.connect(dbUrl);
 }
 
-app.get("/",(req,res)=>{
-     res.redirect("/listings");
+// Redirect homepage to /listings (before other routes)
+app.get("/", (req,res) => {
+    res.redirect("/listings");
 });
 
+// Route mounting
+app.use("/listings", listingRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/", userRouter);
+
+// 404 handler (must be last)
+app.all("*", (req, res, next)=>{
+    next(new ExpressError(404, "Page not found!"));
+});
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
 app.use(express.urlencoded({extended: true}));
